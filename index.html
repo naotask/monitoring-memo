@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0f6b61">\n  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%230f6b61'/%3E%3Cpath d='M35 30h58v68H35z' fill='white' opacity='.18'/%3E%3Cpath d='M44 36h40v7H44zm0 16h40v7H44zm0 16h28v7H44z' fill='white'/%3E%3Cpath d='M78 82l8 8 16-20' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#0f6b61">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
   <title>モニタリングメモ</title>
   <style>
     :root{--ink:#20312f;--muted:#647673;--paper:#fffdf8;--bg:#edf4f1;--line:#cedbd7;--main:#0f6b61;--main2:#e0f0eb;--warn:#9a5b14;--warnbg:#fff1d9;--ok:#2e7351;--okbg:#e2f3e8;--danger:#a64040;--shadow:0 12px 32px rgba(31,66,59,.11)}
@@ -31,7 +33,7 @@
       <div class="field"><label for="familyWords">家族の発言</label><textarea id="familyWords" placeholder="例：今のサービスを続けてほしい"></textarea></div>
       <div class="field free"><label for="free">自由メモ <span class="hint">聞いた話を自由に</span></label><textarea id="free" placeholder="ほかに聞いたこと、気になったこと、確認しておきたいこと"></textarea></div>
     </div>
-    <div class="actions"><button class="btn primary" id="make" type="button">文章を作成</button><button class="btn secondary" id="copy" type="button">文章をコピー</button><button class="btn ghost" id="download" type="button">文章をファイル保存</button></div>
+    <div class="actions"><button class="btn primary" id="make" type="button">文章を作成</button><button class="btn ghost" id="download" type="button">文章をファイル保存</button></div>
     <div class="field output"><label for="output">作成した文章 <span class="hint">この欄で手直しできます</span></label><textarea id="output" placeholder="上の項目を入力して「文章を作成」を押してください"></textarea></div>
     <label class="check"><input id="transferred" type="checkbox"><span>介護ソフトへ転記済み</span></label>
     <div id="status" class="status" aria-live="polite"></div>
@@ -62,7 +64,7 @@ function formatDate(s){if(!s)return'';const[a,b,c]=s.split('-');return `${Number
 function render(){const q=$('search').value.trim().toLowerCase();let all=loadAll().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.updatedAt||'').localeCompare(a.updatedAt||''));if(q)all=all.filter(r=>ids.some(k=>String(r[k]||'').toLowerCase().includes(q)));$('cards').innerHTML=all.length?all.map(r=>`<button class="card" type="button" data-id="${esc(r.id)}"><span class="card-head"><span><span class="name">${esc(r.name)}</span><br><span class="date">${formatDate(r.date)}</span></span><span class="badge ${r.transferred?'done':'pending'}">${r.transferred?'転記済み':'未転記'}</span></span><span class="preview">${esc(r.output||r.free||r.changes||'内容未入力')}</span></button>`).join(''):'<div class="empty">保存したメモはありません</div>';$('cards').querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>edit(b.dataset.id)))}
 function updateCount(){$('count').textContent=`(${loadAll().length})`}
 function show(which){const input=which==='input';$('inputView').style.display=input?'block':'none';$('listView').style.display=input?'none':'block';$('inputTab').classList.toggle('active',input);$('listTab').classList.toggle('active',!input);if(!input)render()}
-$('make').onclick=makeText;$('save').onclick=save;$('newTop').onclick=()=>{reset();show('input')};$('cancel').onclick=reset;$('remove').onclick=remove;$('inputTab').onclick=()=>show('input');$('listTab').onclick=()=>show('list');$('search').oninput=render;$('clearSearch').onclick=()=>{$('search').value='';render()};$('copy').onclick=async()=>{if(!val('output')){message('コピーする文章がありません',true);return}try{await navigator.clipboard.writeText(val('output'));message('文章をコピーしました')}catch{$('output').select();document.execCommand('copy');message('文章をコピーしました')}};$('download').onclick=()=>{const text=val('output');if(!text){message('保存する文章がありません',true);return}const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='monitoring-memo-'+(val('date')||new Date().toISOString().slice(0,10))+'.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);message('文章ファイルを保存しました')};
+$('make').onclick=makeText;$('save').onclick=save;$('newTop').onclick=()=>{reset();show('input')};$('cancel').onclick=reset;$('remove').onclick=remove;$('inputTab').onclick=()=>show('input');$('listTab').onclick=()=>show('list');$('search').oninput=render;$('clearSearch').onclick=()=>{$('search').value='';render()};$('download').onclick=()=>{const text=val('output');if(!text){message('保存する文章がありません',true);return}const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='monitoring-memo-'+(val('date')||new Date().toISOString().slice(0,10))+'.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);message('文章ファイルを保存しました')};
 reset();updateCount();
 })();
 </script>
